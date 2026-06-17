@@ -429,7 +429,7 @@ musicBtn.addEventListener('click', function(e) {
       }
       music.play().then(() => {
         musicBtn.classList.add('playing');
-      }).catch(e => console.log("Браузер ожидает взаимодействия"));
+      }).catch(e => console.log("Браузер заблокировал автовоспроизведение"));
     } else {
       music.pause();
       musicBtn.classList.remove('playing');
