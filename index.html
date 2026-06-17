@@ -398,7 +398,7 @@ var isFirstPlay = true;
 function toggleMusic() {
   if (music.paused) {
     if (isFirstPlay) {
-      music.currentTime = 48; // Устанавливаем воспроизведение с 48-й секунды
+      music.currentTime = 49; // Устанавливаем воспроизведение с 48-й секунды
       isFirstPlay = false;
     }
     music.play().then(() => {
@@ -417,26 +417,48 @@ musicBtn.addEventListener('click', function(e) {
   toggleMusic();
 });
 
-// Гарантированный запуск при первом клике в любом месте экрана (для Netlify)
-document.addEventListener('click', function globalPlay() {
-  if (music.paused && isFirstPlay) {
-    music.currentTime = 48;
-    isFirstPlay = false;
-    music.play().then(() => {
-      musicBtn.classList.add('playing');
-    }).catch(err => {
-      console.log("Ошибка воспроизведения:", err);
-    });
-  }
-  // Удаляем обработчик после первого клика
-  document.removeEventListener('click', globalPlay);
-}, { capture: true, once: true });
+<script>
+  const music = document.getElementById('music');
+  const musicBtn = document.getElementById('music-btn');
+  var isFirstPlay = true;
 
-// Проверка на случай ошибки 404 (если файл music.mp3 забыли загрузить)
-music.addEventListener('error', function() {
-  console.error("Ошибка: Аудиофайл 'music.mp3' не найден или не может быть загружен.");
-  alert("Музыкальный файл 'music.mp3' не найден. Убедитесь, что вы загрузили его в Netlify вместе с HTML-файлом в одну папку!");
-}, true);
+  function toggleMusic() {
+    if (music.paused) {
+      if (isFirstPlay) {
+        music.currentTime = 48;
+        isFirstPlay = false;
+      }
+      music.play().then(() => {
+        musicBtn.classList.add('playing');
+      }).catch(e => console.log("Күту: Пайдаланушы әрекеті қажет."));
+    } else {
+      music.pause();
+      musicBtn.classList.remove('playing');
+    }
+  }
+
+  // Кнопка арқылы басқару
+  musicBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMusic();
+  });
+
+  // Мобильді құрылғылар үшін әмбебап іске қосу
+  const startAudio = () => {
+    if (isFirstPlay) {
+      toggleMusic();
+      document.removeEventListener('touchstart', startAudio);
+      document.removeEventListener('click', startAudio);
+    }
+  };
+
+  document.addEventListener('touchstart', startAudio, { once: true });
+  document.addEventListener('click', startAudio, { once: true });
+
+  // Қателерді бақылау
+  music.addEventListener('error', function() {
+    console.error("music.mp3 табылмады. Файлдың аты мен орналасуын тексеріңіз.");
+  });
 </script>
 </body>
 </html>
