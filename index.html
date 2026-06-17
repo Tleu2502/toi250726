@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="kk">
 <head>
@@ -6,7 +7,7 @@
 <title>Динара және Алихан тойы</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 <script></script><style>
-  * { margin:0; padding:0; box-sizing:border-box; }
+* { margin:0; padding:0; box-sizing:border-box; }
 :root {
   --cream: #FAF7F4;
   --gold: #C9A96E;
@@ -209,7 +210,7 @@ footer { background:var(--dark); text-align:center; padding:56px 24px 40px; posi
 </head>
 <body>
 <!-- Музыкальный плеер -->
- <audio id="music" src="music.mp3" preload="none"></audio>
+<audio id="bg-music" src="music.mp3" loop></audio>
 
 <div class="audio-control" id="music-btn" title="Включить/Выключить музыку">
   <svg id="music-icon" viewBox="0 0 24 24">
@@ -391,13 +392,14 @@ function submitRSVP(){
 
 
 // МУЗЫКАЛЬНЫЙ ПЛЕЕР
+var music = document.getElementById('bg-music');
 var musicBtn = document.getElementById('music-btn');
 var isFirstPlay = true;
 
 function toggleMusic() {
   if (music.paused) {
     if (isFirstPlay) {
-      music.currentTime = 49; // Устанавливаем воспроизведение с 48-й секунды
+      music.currentTime = 48; // Устанавливаем воспроизведение с 48-й секунды
       isFirstPlay = false;
     }
     music.play().then(() => {
@@ -416,37 +418,26 @@ musicBtn.addEventListener('click', function(e) {
   toggleMusic();
 });
 
-<script>
-  const music = document.getElementById('music');
-  const musicBtn = document.getElementById('music-btn');
-  let isFirstPlay = true;
-
-  function toggleMusic() {
-    if (music.paused) {
-      if (isFirstPlay) {
-        music.currentTime = 49;
-        isFirstPlay = false;
-      }
-      music.play().then(() => {
-        musicBtn.classList.add('playing');
-      }).catch(e => console.log("Браузер заблокировал автовоспроизведение"));
-    } else {
-      music.pause();
-      musicBtn.classList.remove('playing');
-    }
+// Гарантированный запуск при первом клике в любом месте экрана (для Netlify)
+document.addEventListener('click', function globalPlay() {
+  if (music.paused && isFirstPlay) {
+    music.currentTime = 48;
+    isFirstPlay = false;
+    music.play().then(() => {
+      musicBtn.classList.add('playing');
+    }).catch(err => {
+      console.log("Ошибка воспроизведения:", err);
+    });
   }
+  // Удаляем обработчик после первого клика
+  document.removeEventListener('click', globalPlay);
+}, { capture: true, once: true });
 
-  musicBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleMusic();
-  });
-
-  document.addEventListener('touchstart', function unlock() {
-    if (isFirstPlay) {
-      toggleMusic();
-      document.removeEventListener('touchstart', unlock);
-    }
-  }, { once: true });
+// Проверка на случай ошибки 404 (если файл music.mp3 забыли загрузить)
+music.addEventListener('error', function() {
+  console.error("Ошибка: Аудиофайл 'music.mp3' не найден или не может быть загружен.");
+  alert("Музыкальный файл 'music.mp3' не найден. Убедитесь, что вы загрузили его в Netlify вместе с HTML-файлом в одну папку!");
+}, true);
 </script>
 </body>
 </html>
