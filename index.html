@@ -420,45 +420,30 @@ musicBtn.addEventListener('click', function(e) {
 <script>
   const music = document.getElementById('music');
   const musicBtn = document.getElementById('music-btn');
-  var isFirstPlay = true;
 
-  function toggleMusic() {
+  // Функция для запуска
+  function tryPlay() {
+    music.play().then(() => {
+      musicBtn.classList.add('playing');
+    }).catch(e => console.log("Ждем взаимодействия пользователя"));
+  }
+
+  // Запуск при клике на иконку
+  musicBtn.addEventListener('click', () => {
     if (music.paused) {
-      if (isFirstPlay) {
-        music.currentTime = 48;
-        isFirstPlay = false;
-      }
-      music.play().then(() => {
-        musicBtn.classList.add('playing');
-      }).catch(e => console.log("Күту: Пайдаланушы әрекеті қажет."));
+      music.play();
+      musicBtn.classList.add('playing');
     } else {
       music.pause();
       musicBtn.classList.remove('playing');
     }
-  }
-
-  // Кнопка арқылы басқару
-  musicBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleMusic();
   });
 
-  // Мобильді құрылғылар үшін әмбебап іске қосу
-  const startAudio = () => {
-    if (isFirstPlay) {
-      toggleMusic();
-      document.removeEventListener('touchstart', startAudio);
-      document.removeEventListener('click', startAudio);
-    }
-  };
-
-  document.addEventListener('touchstart', startAudio, { once: true });
-  document.addEventListener('click', startAudio, { once: true });
-
-  // Қателерді бақылау
-  music.addEventListener('error', function() {
-    console.error("music.mp3 табылмады. Файлдың аты мен орналасуын тексеріңіз.");
-  });
+  // Авто-разблокировка при первом тапе по экрану
+  document.addEventListener('touchstart', function unlock() {
+    tryPlay();
+    document.removeEventListener('touchstart', unlock);
+  }, { once: true });
 </script>
 </body>
 </html>
