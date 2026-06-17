@@ -391,7 +391,6 @@ function submitRSVP(){
 
 
 // МУЗЫКАЛЬНЫЙ ПЛЕЕР
-var music = document.getElementById('bg-music');
 var musicBtn = document.getElementById('music-btn');
 var isFirstPlay = true;
 
@@ -420,29 +419,33 @@ musicBtn.addEventListener('click', function(e) {
 <script>
   const music = document.getElementById('music');
   const musicBtn = document.getElementById('music-btn');
+  let isFirstPlay = true;
 
-  // Функция для запуска
-  function tryPlay() {
-    music.play().then(() => {
-      musicBtn.classList.add('playing');
-    }).catch(e => console.log("Ждем взаимодействия пользователя"));
-  }
-
-  // Запуск при клике на иконку
-  musicBtn.addEventListener('click', () => {
+  function toggleMusic() {
     if (music.paused) {
-      music.play();
-      musicBtn.classList.add('playing');
+      if (isFirstPlay) {
+        music.currentTime = 49;
+        isFirstPlay = false;
+      }
+      music.play().then(() => {
+        musicBtn.classList.add('playing');
+      }).catch(e => console.log("Браузер ожидает взаимодействия"));
     } else {
       music.pause();
       musicBtn.classList.remove('playing');
     }
+  }
+
+  musicBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMusic();
   });
 
-  // Авто-разблокировка при первом тапе по экрану
   document.addEventListener('touchstart', function unlock() {
-    tryPlay();
-    document.removeEventListener('touchstart', unlock);
+    if (isFirstPlay) {
+      toggleMusic();
+      document.removeEventListener('touchstart', unlock);
+    }
   }, { once: true });
 </script>
 </body>
